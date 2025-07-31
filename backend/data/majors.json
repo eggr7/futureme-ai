@@ -1,0 +1,27 @@
+{
+  "Computer Science": {
+    "description": "Problem-solving through code and technology. Involves programming, algorithms, and software development.",
+    "skills": ["Programming", "Logical thinking", "Problem-solving", "Mathematics"],
+    "career_paths": ["Software Engineer", "Data Scientist", "Web Developer", "AI Researcher"]
+  },
+  "Psychology": {
+    "description": "Study of behavior and the mind. Understanding human thoughts, emotions, and behaviors.",
+    "skills": ["Empathy", "Communication", "Research", "Critical thinking"],
+    "career_paths": ["Clinical Psychologist", "Counselor", "Research Psychologist", "HR Specialist"]
+  },
+  "Business": {
+    "description": "Leadership and decision-making in organizational settings. Focus on management, strategy, and entrepreneurship.",
+    "skills": ["Leadership", "Communication", "Strategic thinking", "Financial analysis"],
+    "career_paths": ["Business Manager", "Entrepreneur", "Consultant", "Marketing Director"]
+  },
+  "Fine Arts": {
+    "description": "Creative expression through various artistic mediums. Developing artistic skills and creative vision.",
+    "skills": ["Creativity", "Visual design", "Artistic technique", "Self-expression"],
+    "career_paths": ["Graphic Designer", "Art Teacher", "Museum Curator", "Freelance Artist"]
+  },
+  "Biology": {
+    "description": "Study of living organisms and life processes. Research-focused with laboratory work and scientific inquiry.",
+    "skills": ["Scientific method", "Research", "Laboratory skills", "Analytical thinking"],
+    "career_paths": ["Research Scientist", "Medical Doctor", "Environmental Scientist", "Biotechnologist"]
+  }
+}
