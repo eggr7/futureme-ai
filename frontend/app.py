@@ -256,16 +256,20 @@ def call_backend(message: str) -> str:
         response = requests.post(
             f"{BACKEND_URL}/api/chat",
             json={"message": message},
-            timeout=10
+            timeout=30  # Increased timeout for LLM responses
         )
         if response.status_code == 200:
-            return response.json()["reply"]
+            data = response.json()
+            # Handle new response format with status and error fields
+            if data.get("status") == "error":
+                return f"⚠️ {data.get('response', 'An error occurred')}"
+            return data.get("response", data.get("reply", "No response received"))
         else:
             return f"Sorry, I encountered an error (Status: {response.status_code}). Please try again!"
     except requests.exceptions.ConnectionError:
         return "❌ Cannot connect to the backend. Make sure the FastAPI server is running on http://localhost:8000"
     except requests.exceptions.Timeout:
-        return "⏱️ Request timed out. Please try again!"
+        return "⏱️ Request timed out. The AI might be taking longer to respond. Please try again!"
     except Exception as e:
         return f"❌ An unexpected error occurred: {str(e)}"
 
