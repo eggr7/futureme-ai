@@ -250,124 +250,104 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+st.markdown(
+    """
+    <div style="text-align: center;">
+        <img src="assets/logoFMAI.png" width="180">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# Backend call
 def call_backend(message: str) -> str:
-    """Call the backend API to get a response"""
     try:
         response = requests.post(
             f"{BACKEND_URL}/api/chat",
             json={"message": message},
-            timeout=30  # Increased timeout for LLM responses
+            timeout=30
         )
         if response.status_code == 200:
             data = response.json()
-            # Handle new response format with status and error fields
             if data.get("status") == "error":
                 return f"⚠️ {data.get('response', 'An error occurred')}"
             return data.get("response", data.get("reply", "No response received"))
         else:
-            return f"Sorry, I encountered an error (Status: {response.status_code}). Please try again!"
+            return f"❌ Error (Status: {response.status_code}). Please try again!"
     except requests.exceptions.ConnectionError:
-        return "❌ Cannot connect to the backend. Make sure the FastAPI server is running on http://localhost:8000"
+        return "❌ Cannot connect to backend. Is FastAPI running?"
     except requests.exceptions.Timeout:
-        return "⏱️ Request timed out. The AI might be taking longer to respond. Please try again!"
+        return "⏱️ Timeout. Please try again!"
     except Exception as e:
-        return f"❌ An unexpected error occurred: {str(e)}"
+        return f"❌ Unexpected error: {str(e)}"
 
+# Main function
 def main():
-    # Header
     st.markdown('<h1 class="main-header">🎓 FutureMe AI</h1>', unsafe_allow_html=True)
     st.markdown('<p class="subtitle">Your AI companion for discovering the perfect college major</p>', unsafe_allow_html=True)
-    
-    # Initialize session state for chat history
+
+    # Initialize session state
     if "messages" not in st.session_state:
-        st.session_state.messages = [
-            {
-                "role": "assistant", 
-                "content": "Hi there! 👋 I'm FutureMe AI, and I'm here to help you discover which college major might be perfect for you! \n\nTell me about yourself - what are your interests, hobbies, or subjects you enjoy? What kind of activities make you feel excited and engaged?"
-            }
-        ]
-    
-    # Display chat history
-    chat_container = st.container()
-    with chat_container:
-        for message in st.session_state.messages:
-            if message["role"] == "user":
-                st.markdown(f'<div class="chat-message user-message"><strong>You:</strong> {message["content"]}</div>', unsafe_allow_html=True)
-            else:
-                st.markdown(f'<div class="chat-message bot-message"><strong>🤖 FutureMe AI:</strong> {message["content"]}</div>', unsafe_allow_html=True)
-    
+        st.session_state.messages = [{
+            "role": "assistant",
+            "content": "Hi there! 👋 I'm FutureMe AI. Tell me about your interests, hobbies, or subjects you enjoy!"
+        }]
+    if "input_buffer" not in st.session_state:
+        st.session_state.input_buffer = ""
+
+    # Display chat
+    for message in st.session_state.messages:
+        css_class = "user-message" if message["role"] == "user" else "bot-message"
+        label = "You:" if message["role"] == "user" else "🤖 FutureMe AI:"
+        st.markdown(f'<div class="chat-message {css_class}"><strong>{label}</strong> {message["content"]}</div>', unsafe_allow_html=True)
+
     # Chat input
     st.markdown("---")
-    
-    # Create columns for better layout
     col1, col2 = st.columns([4, 1])
-    
     with col1:
-        user_input = st.text_input(
-            "Type your message here...",
-            placeholder="e.g., I love solving puzzles and working with computers",
-            key="user_input",
-            label_visibility="collapsed"
-        )
-    
-    with col2:
-        send_button = st.button("Send 📤", use_container_width=True)
-    
-    # Handle user input
-    if send_button and user_input:
-        # Add user message to chat history
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        
-        # Get response from backend
+        with st.form(key="chat_form", clear_on_submit=True):
+            user_input = st.text_input(
+                "Type your message here...",
+                placeholder="e.g., I love science and helping others",
+                label_visibility="collapsed"
+            )
+            submitted = st.form_submit_button("Send 📤")
+
+    if submitted and user_input.strip():
+        # Save message
+        st.session_state.messages.append({"role": "user", "content": user_input.strip()})
+        # Call backend
         with st.spinner("🤔 Thinking..."):
             st.markdown('<div class="thinking">🤖 FutureMe AI is analyzing your interests...</div>', unsafe_allow_html=True)
-            bot_response = call_backend(user_input)
-        
-        # Add bot response to chat history
+            bot_response = call_backend(user_input.strip())
         st.session_state.messages.append({"role": "assistant", "content": bot_response})
-        
-        # Rerun to update the chat display
         st.rerun()
-    
-    # Sidebar with information
+
+    # Sidebar info
     with st.sidebar:
         st.markdown("### 📚 About FutureMe AI")
         st.markdown("""
-        <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
-        This AI chatbot helps high school students explore different college majors based on their interests, skills, and preferences.
-        
-        <strong>How it works:</strong><br>
-        🎯 Share your interests and hobbies<br>
-        🎓 Get personalized major recommendations<br>
-        💼 Learn about career paths and skills needed
-        
-        <strong>Tips for better results:</strong><br>
-        💡 Be specific about what you enjoy<br>
-        📚 Mention subjects you excel in<br>
-        🚀 Share your career aspirations
-        </div>
-        """, unsafe_allow_html=True)
-        
+        This AI chatbot helps students explore college majors based on their interests.
+        - 🎯 Share your hobbies and strengths  
+        - 🎓 Get career suggestions  
+        - 💼 Learn about possible paths  
+        """)
         st.markdown("---")
         st.markdown("### 🔧 System Status")
-        
-        # Test backend connection
         try:
-            test_response = requests.get(f"{BACKEND_URL}/", timeout=5)
-            if test_response.status_code == 200:
-                st.markdown('<div class="status-success">✅ Backend Connected</div>', unsafe_allow_html=True)
+            r = requests.get(f"{BACKEND_URL}/", timeout=5)
+            if r.status_code == 200:
+                st.success("✅ Backend Connected")
             else:
-                st.markdown('<div class="status-error">❌ Backend Error</div>', unsafe_allow_html=True)
+                st.error("❌ Backend Error")
         except:
-            st.markdown('<div class="status-error">❌ Backend Offline</div>', unsafe_allow_html=True)
-        
+            st.error("❌ Backend Offline")
+
         if st.button("Clear Chat History"):
-            st.session_state.messages = [
-                {
-                    "role": "assistant", 
-                    "content": "Hi there! 👋 I'm FutureMe AI, and I'm here to help you discover which college major might be perfect for you! \n\nTell me about yourself - what are your interests, hobbies, or subjects you enjoy?"
-                }
-            ]
+            st.session_state.messages = [{
+                "role": "assistant",
+                "content": "Hi there! 👋 I'm FutureMe AI. Tell me about your interests!"
+            }]
             st.rerun()
 
 if __name__ == "__main__":
