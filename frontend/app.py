@@ -1,8 +1,16 @@
 import streamlit as st
 import requests
 import os
+import base64
+from io import BytesIO
 from dotenv import load_dotenv
 from PIL import Image 
+
+def logo_to_base64(img):
+    buffer = BytesIO()
+    img.save(buffer, format="PNG")
+    b64 = base64.b64encode(buffer.getvalue()).decode()
+    return b64
 
 # Load environment variables
 load_dotenv()
@@ -253,10 +261,18 @@ st.markdown("""
 
 # Fix image rendering by using relative path
 image_path = "assets/logoFMAI.png"
-    
+
 if os.path.exists(image_path):
     logo = Image.open(image_path)
-    st.image(logo, width=180)
+    # Center the image using HTML
+    st.markdown(
+        f"""
+        <div style="text-align: center;">
+            <img src="data:image/png;base64,{logo_to_base64(logo)}" width="180">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 else:
     st.warning("Logo not found.")
 
