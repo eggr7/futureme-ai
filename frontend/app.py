@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 import os
 from dotenv import load_dotenv
+from PIL import Image 
 
 # Load environment variables
 load_dotenv()
@@ -250,14 +251,14 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown(
-    """
-    <div style="text-align: center;">
-        <img src="assets/logoFMAI.png" width="180">
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+# Fix image rendering by using relative path
+image_path = "assets/logoFMAI.png"
+    
+if os.path.exists(image_path):
+    logo = Image.open(image_path)
+    st.image(logo, width=180)
+else:
+    st.warning("Logo not found.")
 
 # Backend call
 def call_backend(message: str) -> str:
@@ -295,35 +296,44 @@ def main():
     if "input_buffer" not in st.session_state:
         st.session_state.input_buffer = ""
 
-    # Display chat
+    # Display chat messages
     for message in st.session_state.messages:
         css_class = "user-message" if message["role"] == "user" else "bot-message"
         label = "You:" if message["role"] == "user" else "🤖 FutureMe AI:"
         st.markdown(f'<div class="chat-message {css_class}"><strong>{label}</strong> {message["content"]}</div>', unsafe_allow_html=True)
 
-    # Chat input
-    st.markdown("---")
-    col1, col2 = st.columns([4, 1])
-    with col1:
-        with st.form(key="chat_form", clear_on_submit=True):
-            user_input = st.text_input(
-                "Type your message here...",
-                placeholder="e.g., I love science and helping others",
-                label_visibility="collapsed"
-            )
-            submitted = st.form_submit_button("Send 📤")
+    st.markdown("---")  # separator
 
+    # Chat input at the bottom
+    st.markdown(
+        """
+        <div style="display: flex; justify-content: center;">
+            <div style="width: 600px;">
+        """, unsafe_allow_html=True)
+
+    with st.form(key="chat_form", clear_on_submit=True):
+        user_input = st.text_input(
+            label="Type your message here...",
+            placeholder="e.g., I love science and helping others",
+            label_visibility="collapsed",
+            key="user_input"
+        )
+        submitted = st.form_submit_button("Send 📤")
+
+    st.markdown("</div></div>", unsafe_allow_html=True)
+
+    # Process submission
     if submitted and user_input.strip():
-        # Save message
         st.session_state.messages.append({"role": "user", "content": user_input.strip()})
-        # Call backend
+
         with st.spinner("🤔 Thinking..."):
             st.markdown('<div class="thinking">🤖 FutureMe AI is analyzing your interests...</div>', unsafe_allow_html=True)
             bot_response = call_backend(user_input.strip())
+
         st.session_state.messages.append({"role": "assistant", "content": bot_response})
         st.rerun()
 
-    # Sidebar info
+    # Sidebar
     with st.sidebar:
         st.markdown("### 📚 About FutureMe AI")
         st.markdown("""
