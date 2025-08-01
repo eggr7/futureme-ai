@@ -4,6 +4,9 @@ import logging
 from typing import Dict, Any, Optional
 from dataclasses import dataclass
 import time
+from dotenv import load_dotenv
+
+load_dotenv()  # ✅ This loads .env variables before they’re accessed
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -50,8 +53,8 @@ def generate_llm_response(message: str) -> str:
     
     try:
         import openai
-        
-        # Initialize OpenAI client
+
+        # ✅ Initialize OpenAI client (correct for openai>=1.0.0)
         client = openai.OpenAI(api_key=config.api_key)
         
         # Create system prompt for career guidance
@@ -72,6 +75,7 @@ def generate_llm_response(message: str) -> str:
         max_retries = 3
         for attempt in range(max_retries):
             try:
+                # ✅ Updated method for openai>=1.0.0
                 response = client.chat.completions.create(
                     model=config.model,
                     messages=[
