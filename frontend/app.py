@@ -259,22 +259,15 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Fix image rendering by using relative path
-image_path = "assets/logoFMAI.png"
-
-if os.path.exists(image_path):
-    logo = Image.open(image_path)
-    # Center the image using HTML
-    st.markdown(
-        f"""
-        <div style="text-align: center;">
-            <img src="data:image/png;base64,{logo_to_base64(logo)}" width="180">
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-else:
-    st.warning("Logo not found.")
+# Embed the image via relative HTML
+st.markdown(
+    """
+    <div style="text-align: center;">
+        <img src="assets/logoFMAI.png" width="180">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # Backend call
 def call_backend(message: str) -> str:
