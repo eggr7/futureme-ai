@@ -21,7 +21,7 @@ BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 # Page configuration
 st.set_page_config(
     page_title="🎓 FutureMe AI",
-    page_icon="🎓",
+    page_icon=" 🐼 ",
     layout="wide",
     initial_sidebar_state="collapsed"
 )

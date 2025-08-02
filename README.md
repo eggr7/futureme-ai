@@ -151,7 +151,7 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## 🏆 Hackathon Notes
 
-Built for [Hackathon Name] with focus on:
+Built for PANDA Hacks 2025 with focus on:
 - Clean, minimal design
 - Fast development and deployment
 - Extensible architecture for future AI integration
